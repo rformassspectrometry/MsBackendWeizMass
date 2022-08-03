@@ -10,5 +10,5 @@ The `MsBackendWeizMass` package allows to access
 databases and hence adds support for these databases to the
 [`Spectra`](https://rformassspectrometry.github.io/Spectra) R package.
 
-For more information see the package
-[homepage](https://rformassspectrometry.github.io/MsBackendWeizMass).
+For more information see the package [help
+page](https://rformassspectrometry.github.io/MsBackendWeizMass).
