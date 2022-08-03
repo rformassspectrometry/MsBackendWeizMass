@@ -1,0 +1,142 @@
+---
+title: "Description and usage of MsBackendWeizMass"
+output:
+    BiocStyle::html_document:
+        toc_float: true
+vignette: >
+    %\VignetteIndexEntry{Description and usage of MsBackendWeizMass}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
+    %\VignettePackage{Spectra}
+    %\VignetteDepends{Spectra,BiocStyle,RSQLite}
+bibliography: references.bib
+---
+
+```{r style, echo = FALSE, results = 'asis', message=FALSE}
+BiocStyle::markdown()
+```
+
+**Package**: `r Biocpkg("MsBackendWeizMass")`<br />
+**Authors**: `r packageDescription("MsBackendWeizMass")[["Author"]] `<br />
+**Compiled**: `r date()`
+
+```{r, echo = FALSE, message = FALSE}
+library(Spectra)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+library(BiocStyle)
+```
+
+# Introduction
+
+The `Spectra` package provides a central infrastructure for the handling of Mass
+Spectrometry (MS) data. The package supports interchangeable use of different
+*backends* to import MS data from a variety of sources (such as mzML files). The
+`MsBackendWeizMass` package allows import and handling MS/MS spectrum data from
+WeizMass spectral library databases [@shahaf_weizmass_2016]. This enables
+integration of the high quality WeizMass MS/MS spectral library into
+`Spectra`-based annotation workflows [@rainer_modular_2022].
+
+
+# Installation
+
+The package can be installed with the `BiocManager` package. To install
+`BiocManager` use `install.packages("BiocManager")` and, after that,
+`BiocManager::install("RforMassSpectrometry/MsBackendWeizMass")` to install this
+package.
+
+
+# Accessing MS/MS data from a WeizMass database
+
+To use the `MsBackendWeizMass` package, access to a WeizMass database (i.e. a
+WeizMass MySQL database) is required. Connection information needs to be
+requested from the original authors from the WeizMass database
+[@shahaf_weizmass_2016]. In this section we use a tiny SQLite-based test
+database which is included within this package that has the same database layout
+then the WeizMass v2 database.
+
+Below we load all required libraries and get the file name of the SQLite
+database.
+
+```{r load-libs}
+library(Spectra)
+library(MsBackendWeizMass)
+library(RSQLite)
+db <- system.file("sqlite", "weizmassv2.sqlite", package = "MsBackendWeizMass")
+con <- dbConnect(SQLite(), db)
+```
+
+A `Spectra` object representing the data from the WeizMass database can be
+created with the `Spectra` function providing the connection to the database as
+well as specifying the backend to be used (`MsBackendWeizMass`).
+
+```{r}
+sps <- Spectra(con, source = MsBackendWeizMass())
+sps
+```
+
+The `spectraVariables` function can be used to get all available *spectra
+variables* from the database.
+
+```{r}
+spectraVariables(sps)
+```
+
+Individual spectra variables can be accessed using a dedicated function (such as
+`rtime`, `msLevel`, etc), if available, or using the `$` operator. The
+chemical formulas for the compounds of the spectra could for example be
+retrieved using `$formula`:
+
+```{r}
+sps$formula
+```
+
+In addition it is possible to retrieve multiple spectra variables using the
+`spectraData` function:
+
+```{r}
+spectraData(sps, c("rtime", "formula", "adduct"))
+```
+
+MS/MS peak data can be retrieved using the `peaksData` function which returns a
+`matrix` with the values. Below we get thus the MS peaks for the first spectrum.
+
+```{r}
+peaksData(sps)[[1L]]
+```
+
+The WeizMass database provides also additional peak information that can be
+listed using the `peaksVariables` function:
+
+```{r}
+peaksVariables(sps)
+```
+
+We could thus also query the annotations for the individual peaks by requesting
+in addition the column `"peak_annotation"` in the `peaksData` call.
+
+```{r}
+peaksData(sps, c("mz", "intensity", "peak_annotation"))[[1L]]
+```
+
+Note however that, since `peaksData` **always** returns a `matrix`, also the m/z
+and intensity values are reported as characters instead of numeric values. Thus,
+it is advisable to query m/z and intensity values separately from peak
+annotations.
+
+Peak annotations can alternatively also directly extracted from a `Spectra`
+object using the `$` operator.
+
+```{r}
+sps$peak_annotation
+```
+
+Note also that precursor m/z values are stored as character values in the
+database, but converted to numeric by the backend during the data retrieval. For
+stored values that can not be converted to a numeric an `NA` is thus reported.
+
+
+# Session information
+
+```{r}
+sessionInfo()
+```

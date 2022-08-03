@@ -1,0 +1,45 @@
+Package: MsBackendWeizMass
+Title: Mass Spectrometry Data Backend for WeizMass Databases
+Version: 0.1.0
+Authors@R:
+    c(person(given = "Johannes", family = "Rainer",
+             email = "Johannes.Rainer@eurac.edu",
+             role = "cre",
+             comment = c(ORCID = "0000-0002-6977-7147")),
+      person(given = "Nir", family = "Shachaf",
+             email = "nir.shachaf@weizman.ac.il",
+	     role = "ctb"))
+Description: Mass spectrometry (MS) data backend supporting data accees to
+             WeizMass MS/MS libraries. Objects from this package are supposed
+	     to be used with the Spectra Bioconductor package. This package thus
+	     adds WeizMass data support to the Spectra package and enables
+	     integration of these data to Spectra-based analysis workflows.
+Depends:
+    R (>= 4.0),
+    Spectra (>= 1.5.8)
+Imports:
+    S4Vectors,
+    IRanges,
+    methods,
+    ProtGenerics,
+    MsCoreUtils,
+    DBI
+Suggests:
+    testthat,
+    knitr (>= 1.1.0),
+    roxygen2,
+    BiocStyle (>= 2.5.19),
+    RSQLite,
+    rmarkdown
+License: Artistic-2.0
+LazyData: yes
+Encoding: UTF-8
+VignetteBuilder: knitr
+BugReports: https://github.com/RforMassSpectrometry/MsBackendWeizMass/issues
+URL: https://github.com/RforMassSpectrometry/MsBackendWeizMass
+biocViews: Infrastructure, MassSpectrometry, Metabolomics, DataImport
+Roxygen: list(markdown=TRUE)
+RoxygenNote: 7.2.0
+Collate:
+    'MsBackendWeizMass-functions.R'
+    'MsBackendWeizMass.R'
