@@ -174,7 +174,8 @@ MsBackendWeizMass <- function() {
     intensity = "INTENSITY",
     peak_annotation = "ANNOTATION",
     common_name = "COMMON_NAME",
-    iupac_name = "IUPAC_NAME"
+    iupac_name = "IUPAC_NAME",
+    instrument = "INSTRUMENT"
 )
 
 .map_spectraVariables_to_sql <- function(x) {
