@@ -1,6 +1,6 @@
 Package: MsBackendWeizMass
 Title: Mass Spectrometry Data Backend for WeizMass Databases
-Version: 0.1.0
+Version: 0.1.1
 Authors@R:
     c(person(given = "Johannes", family = "Rainer",
              email = "Johannes.Rainer@eurac.edu",
@@ -43,3 +43,4 @@ RoxygenNote: 7.2.0
 Collate:
     'MsBackendWeizMass-functions.R'
     'MsBackendWeizMass.R'
+    'zzz.R'

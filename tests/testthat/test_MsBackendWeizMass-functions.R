@@ -34,6 +34,33 @@ test_that(".fetch_peaks_sql works", {
     expect_true(is.character(res$peak_annotation))
 })
 
+test_that(".fetch_peaks_sql_order_mz works", {
+    be <- MsBackendWeizMass()
+    res <- .fetch_peaks_sql_order_mz(be)
+    expect_true(is.data.frame(res))
+    expect_equal(colnames(res), c("spectrum_id", "mz", "intensity"))
+    expect_true(nrow(res) == 0)
+
+    be <- backendInitialize(MsBackendWeizMass(), dbc)
+    res <- .fetch_peaks_sql_order_mz(be, columns = c("mz", "intensity"))
+    expect_true(is.data.frame(res))
+    expect_equal(colnames(res), c("spectrum_id", "mz", "intensity"))
+    expect_true(nrow(res) > 0)
+    expect_true(is.numeric(res$mz))
+    expect_true(is.numeric(res$intensity))
+    expect_false(is.unsorted(res$mz))
+
+    res <- .fetch_peaks_sql_order_mz(be, columns = peaksVariables(be))
+    expect_true(is.data.frame(res))
+    expect_equal(colnames(res), c("spectrum_id", "mz", "intensity",
+                                  "relative_intensity", "peak_annotation"))
+    expect_true(nrow(res) > 0)
+    expect_true(is.numeric(res$mz))
+    expect_true(is.numeric(res$intensity))
+    expect_true(is.character(res$peak_annotation))
+    expect_false(is.unsorted(res$mz))
+})
+
 test_that(".peaks_data works", {
     be <- MsBackendWeizMass()
     res <- .peaks_data(be)

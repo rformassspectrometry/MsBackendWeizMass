@@ -68,7 +68,9 @@ MsBackendWeizMass <- function() {
     }
     ## Get m/z and intensity values
     if (length(mz_cols)) {
-        pks <- .fetch_peaks_sql(x, columns = mz_cols)
+        pks <- getOption(
+            ".PEAKS_FUN",
+            default = .fetch_peaks_sql_order_mz)(x, columns = mz_cols)
         f <- as.factor(pks$spectrum_id)
         if (any(mz_cols == "mz")) {
             mzs <- unname(
@@ -124,6 +126,31 @@ MsBackendWeizMass <- function() {
     }
 }
 
+.fetch_peaks_sql_order_mz <- function(x, columns = c("mz", "intensity")) {
+    if (length(x@dbcon)) {
+        cols_orig <- columns
+        columns <- union(columns, "mz")
+        cols <- .map_spectraVariables_to_sql(columns)
+        res <- dbGetQuery(
+            x@dbcon,
+            paste0("select SPECTRUM_ID,", paste(cols, collapse = ","),
+                   " from PEAK where SPECTRUM_ID in (",
+                   paste0(unique(x@spectraIds), collapse = ","),")"))
+        colnames(res) <- c("spectrum_id", columns)
+        res$mz <- as.numeric(res$mz)
+        res <- res[order(res$mz), , drop = FALSE]
+        if (any(columns == "intensity"))
+            res$intensity <- as.numeric(res$intensity)
+        if (any(columns == "relative_intensity"))
+            res$relative_intensity <- as.numeric(res$relative_intensity)
+        res
+    } else {
+        data.frame(spectrum_id = character(), mz = numeric(),
+                   intensity = numeric(), relative_intensity = numeric(),
+                   peak_annotation = character())[, c("spectrum_id", columns)]
+    }
+}
+
 #' Fetches the m/z and intensity values from the database and returns a list
 #' of two column matrices (m/z, intensity). The function ensures that the data
 #' is returned in the same order than x@spectraIds (also allowing duplicated
@@ -135,7 +162,8 @@ MsBackendWeizMass <- function() {
 #'
 #' @noRd
 .peaks_data <- function(x, columns = c("mz", "intensity")) {
-    p <- .fetch_peaks_sql(x, columns = columns)
+    p <- getOption(".PEAKS_FUN",
+                   default = .fetch_peaks_sql_order_mz)(x, columns = columns)
     p <- unname(split.data.frame(
         p, as.factor(p$spectrum_id))[as.character(x@spectraIds)])
     emat <- matrix(ncol = length(columns), nrow = 0,
